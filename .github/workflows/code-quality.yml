@@ -2,7 +2,7 @@
 name: Code Quality
 
 on:
-  workfolow_call:
+   workflow_call:
     
 jobs:
     sast:
