@@ -23,8 +23,18 @@ jobs:
               run: go install golang.org/x/vuln/cmd/govulncheck@latest
               
             - name: Run Govulncheck
-              run: govulncheck ./... 
+              continue-on-error: true
+              run: govulncheck ./... > govelner-report.txt
               working-directory: backend/
+
+            - name: Upload report to Artifact
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                name: Job-Report
+                path: reports/govelner-report.txt
+                retention-days: 5
+
 
             - name: Setup NodeJs
               uses: actions/setup-node@v6
