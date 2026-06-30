@@ -41,11 +41,13 @@ jobs:
               echo "DockerHub token is present"
             fi
 
-      - name: Docker build ${{ matrix.dockerfile-path }}
+      
+      - name: Docker build
         run: |
-          docker build \
-          -t ${{ vars.DOCKERHUB_USERNAME }}/devboard-${{ matrix.dockerfile-path == 'frontend/Dockerfile' && 'frontend' || 'backend' }}:latest \
-          -f ${{ matrix.dockerfile-path }} .
+           docker build \
+           -t ${{ vars.DOCKERHUB_USERNAME }}/devboard-frontend:latest \
+           -f frontend/Dockerfile \
+            frontend
 
       - name: Run trivy scan on ${{ matrix.dockerfile-path }} image
         uses: aquasecurity/trivy-action@v0.36.0
