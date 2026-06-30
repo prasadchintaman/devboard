@@ -27,7 +27,7 @@ jobs:
           dockerfile: ${{ matrix.dockerfile-path }}
 
       - name: Docker Setup [Login]
-        uses: docker/login-action@v4
+        uses: docker/login-action@v7
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
