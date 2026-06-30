@@ -11,10 +11,15 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
-      matrix:
-        dockerfile-path:
-          - frontend/Dockerfile
-          - backend/Dockerfile
+        matrix:
+            include:
+            - dockerfile-path: frontend/Dockerfile
+              context: frontend
+              image-name: frontend
+
+            - dockerfile-path: backend/Dockerfile
+              context: backend
+              image-name: backend
 
     steps:
 
@@ -40,12 +45,16 @@ jobs:
             else 
               echo "DockerHub token is present"
             fi
-
-      
       - name: Docker build
         run: |
-            docker build -t ${{ vars.DOCKERHUB_USERNAME }}/devboard-${{ matrix.dockerfile-path == 'frontend/Dockerfile' && 'frontend' || 'backend' }}:latest -f ${{ matrix.dockerfile-path }} .
+           docker build \
+           -t ${{ vars.DOCKERHUB_USERNAME }}/devboard-${{ matrix.image-name }}:latest \
+           -f ${{ matrix.dockerfile-path }} \
+            ${{ matrix.context }}
+      
 
+      
+      
       - name: Run trivy scan on ${{ matrix.dockerfile-path }} image
         uses: aquasecurity/trivy-action@v0.36.0
         with:
