@@ -1,39 +1,48 @@
 # Goal - Ensure that docker file and images are tested for security vulnerabilities and misconfigurations.
+
 name: Docker Scan
 
 on:
   workflow_call:
 
 jobs:
-    docker-file-lint:
-        runs-on: ubuntu-latest
-        strategy:
-          matrix:
-            dockerfile-path: [frontend/Dockerfile, backend/Dockerfile]
-        steps:
-            - name: Checkout Code
-              uses: actions/checkout@v7
+  docker-file-lint:
 
-            - name: Dockerfile Linter
-              uses: hadolint/hadolint-action@v3.1.0
-              with:
-                dockerfile: ${{ matrix.dockerfile-path }}
+    runs-on: ubuntu-latest
 
-            - name: Docker Setup [Login]
-              uses: docker/login-action@v4
-              with:
-                username: ${{ vars.DOCKERHUB_USERNAME }}
-                password: ${{ secrets.DOCKERHUB_TOKEN }}
+    strategy:
+      matrix:
+        dockerfile-path:
+          - frontend/Dockerfile
+          - backend/Dockerfile
 
-            - name: Docker build ${{ matrix.dockerfile-path }} 
-              run:  
-                docker build -t ${{ vars.DOCKERHUB_USERNAME }}/devboard-${{ matrix.dockerfile-path == 'frontend/Dockerfile' && echo 'frontend' || echo 'backend' }}:latest -f ${{ matrix.dockerfile-path }} .
+    steps:
 
-            - name: Run trivy scan on ${{ matrix.dockerfile-path }} image
-              uses: aquasecurity/trivy-action@v2
-              with:
-                image-ref: ${{ vars.DOCKERHUB_USERNAME }}/devboard-${{ matrix.dockerfile-path == 'frontend/Dockerfile' && echo 'frontend' || echo 'backend' }}:latest
-                format: 'table'
-                exit-code: '1'
-                vuln-type: 'os,library'
-                severity: 'CRITICAL,HIGH'
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Dockerfile Linter
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: ${{ matrix.dockerfile-path }}
+
+      - name: Docker Setup [Login]
+        uses: docker/login-action@v4
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Docker build ${{ matrix.dockerfile-path }}
+        run: |
+          docker build \
+          -t ${{ vars.DOCKERHUB_USERNAME }}/devboard-${{ matrix.dockerfile-path == 'frontend/Dockerfile' && 'frontend' || 'backend' }}:latest \
+          -f ${{ matrix.dockerfile-path }} .
+
+      - name: Run trivy scan on ${{ matrix.dockerfile-path }} image
+        uses: aquasecurity/trivy-action@v2
+        with:
+          image-ref: ${{ vars.DOCKERHUB_USERNAME }}/devboard-${{ matrix.dockerfile-path == 'frontend/Dockerfile' && 'frontend' || 'backend' }}:latest
+          format: table
+          exit-code: '1'
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
