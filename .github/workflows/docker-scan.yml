@@ -37,7 +37,7 @@ jobs:
             if [-z "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
               echo "DockerHub token is missing"
               exit 1
-            else "
+            else 
               echo "DockerHub token is present"
             fi
 
