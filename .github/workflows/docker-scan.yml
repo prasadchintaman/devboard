@@ -32,6 +32,15 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Check Secret
+        run: |
+            if [-z "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
+              echo "DockerHub token is missing"
+              exit 1
+            else "
+              echo "DockerHub token is present"
+            fi
+
       - name: Docker build ${{ matrix.dockerfile-path }}
         run: |
           docker build \
