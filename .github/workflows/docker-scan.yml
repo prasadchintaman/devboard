@@ -60,7 +60,7 @@ jobs:
         with:
           image-ref: ${{ vars.DOCKERHUB_USERNAME }}/devboard-${{ matrix.dockerfile-path == 'frontend/Dockerfile' && 'frontend' || 'backend' }}:latest
           format: table
-          exit-code: '0'
+          exit-code: '1'
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
           inherit-env: true
